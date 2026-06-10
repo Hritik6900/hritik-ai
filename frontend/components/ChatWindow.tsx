@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import MessageBubble, { Message } from './MessageBubble'
+import VoiceInput from './VoiceInput'
 
 const GREETING_MESSAGE = `Hi! I'm Hritik's AI representative — built to answer your questions about his background, projects, and experience. Ask me anything, or book a call directly below! 🚀`
 
@@ -56,7 +57,7 @@ export default function ChatWindow() {
         body: JSON.stringify({ message: text.trim(), session_id: sessionId }),
       })
 
-      if (!response.ok) throw new Error(`Chat failed`)
+      if (!response.ok) throw new Error(`Chat failed: ${response.statusText}`)
 
       const data = await response.json()
 
@@ -76,7 +77,7 @@ export default function ChatWindow() {
         {
           id: `msg-${Date.now()}`,
           sender: 'ai',
-          text: 'Something went wrong. Please try again.',
+          text: 'Something went wrong. Please try again in a moment.',
           timestamp: new Date(),
         },
       ])
@@ -90,35 +91,40 @@ export default function ChatWindow() {
     sendMessage(inputValue)
   }
 
+  const handleTranscript = (transcript: string) => {
+    setInputValue(transcript)
+  }
+
   const suggestedQuestions = [
     "Tell me about NavDrishti",
     "Why should we hire Hritik?",
-    "Hackathon wins?",
-    "What is Hritik's CGPA?",
+    "How many hackathons has Hritik won?",
   ]
 
   return (
-    <div className="flex flex-col h-screen max-w-2xl mx-auto bg-white shadow-xl">
-
-      {/* Header */}
-      <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-white shadow-sm">
-        <div className="relative">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-base shadow-md">
-            H
+    <div className="flex flex-col h-screen max-w-3xl mx-auto" style={{background: 'linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 50%, #0a0a0f 100%)'}}>
+      
+      <div className="glass border-b border-white/5 px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+              H
+            </div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-[#0a0a0f]"></div>
           </div>
-          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
+          <div>
+            <h1 className="text-white font-bold text-lg leading-none">Hritik AI</h1>
+            <p className="text-indigo-400 text-xs mt-0.5">AI Representative • RAG-Powered • Online</p>
+          </div>
+          <div className="ml-auto">
+            <span className="text-xs text-white/30 glass px-3 py-1 rounded-full">
+              ⚡ Powered by Groq
+            </span>
+          </div>
         </div>
-        <div className="flex-1">
-          <h1 className="text-gray-900 font-semibold text-base leading-none">Hritik AI</h1>
-          <p className="text-indigo-500 text-xs mt-0.5">AI Representative • RAG-Powered</p>
-        </div>
-        <span className="text-xs text-gray-400 bg-gray-50 border border-gray-200 px-3 py-1 rounded-full">
-          ⚡ Groq
-        </span>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-3 bg-gray-100">
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
         {messages.map((message) => (
           <MessageBubble
             key={message.id}
@@ -128,12 +134,12 @@ export default function ChatWindow() {
         ))}
 
         {messages.length === 1 && (
-          <div className="flex flex-wrap gap-2 mt-3 animate-message">
+          <div className="flex flex-wrap gap-2 mt-4 animate-message">
             {suggestedQuestions.map((q, i) => (
               <button
                 key={i}
                 onClick={() => sendMessage(q)}
-                className="text-xs px-3 py-2 rounded-full bg-white border border-gray-200 text-gray-600 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50 transition-all shadow-sm"
+                className="text-xs px-3 py-2 rounded-full border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/10 transition-all"
               >
                 {q}
               </button>
@@ -144,24 +150,24 @@ export default function ChatWindow() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="px-4 py-4 bg-white border-t border-gray-100 shadow-sm">
-        <form onSubmit={handleSubmit} className="flex gap-2 items-center">
+      <div className="glass border-t border-white/5 px-4 py-4">
+        <form onSubmit={handleSubmit} className="flex gap-2">
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Ask about Hritik's projects, skills..."
+            placeholder="Ask about Hritik's projects, skills, experience..."
             disabled={isLoading}
-            className="flex-1 px-4 py-3 rounded-full text-sm text-gray-800 placeholder-gray-400 bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent disabled:opacity-50 transition-all"
+            className="flex-1 px-4 py-3 rounded-xl text-sm text-white placeholder-white/25 disabled:opacity-50 transition-all outline-none focus:ring-1 focus:ring-indigo-500/50"
+            style={{background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)'}}
           />
 
-          
+          <VoiceInput onTranscript={handleTranscript} isDisabled={isLoading} />
 
           <button
             type="submit"
             disabled={isLoading || !inputValue.trim()}
-            className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-indigo-700 transition-all shadow-md"
+            className="px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:from-indigo-500 hover:to-purple-500"
           >
             {isLoading ? (
               <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -176,10 +182,10 @@ export default function ChatWindow() {
           </button>
         </form>
 
-        <div className="flex items-center justify-between mt-2 px-1">
-          <p className="text-gray-400 text-xs">RAG-grounded • No hallucinations</p>
-          <button className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors font-medium">
-            📞 Book a Call
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-white/20 text-xs">RAG-grounded • No hallucinations</p>
+          <button className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+            📞 Book a Call with Hritik
           </button>
         </div>
       </div>
