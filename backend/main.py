@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from chat import chat
-from calendar import get_availability, book_slot
+from calendar_manager import get_availability, book_slot
 from voice_handler import handle_webhook
 
 load_dotenv()
