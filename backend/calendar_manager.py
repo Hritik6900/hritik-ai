@@ -24,16 +24,17 @@ def get_availability():
 
         response = requests.get(url, headers=HEADERS)
 
+        print("CAL STATUS:", response.status_code)
+        print("CAL RESPONSE:", response.text)
+
         data = response.json()
 
         slots = []
 
         if "data" in data:
-            for day in data["data"]:
-                for slot in data["data"][day]:
-                    slots.append(slot["start"])
+            print("DATA TYPE:", type(data["data"]))
 
-        return slots[:3]
+        return slots
 
     except Exception as e:
         print("Availability Error:", e)
