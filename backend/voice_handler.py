@@ -6,12 +6,12 @@ Logs call lifecycle events and transcripts.
 import json
 import os
 from datetime import datetime
-from typing import dict, Any
+from typing import Dict, Any
 
 VOICE_LOG_FILE = "voice_calls.log"
 
 
-def log_event(event_type: str, data: dict) -> None:
+def log_event(event_type: str, data: Dict) -> None:
     """
     Log a voice call event to file.
     
@@ -34,7 +34,7 @@ def log_event(event_type: str, data: dict) -> None:
     print(f"[{timestamp}] {event_type}: {json.dumps(data, indent=2)}")
 
 
-def handle_call_started(event: dict) -> None:
+def handle_call_started(event: Dict) -> None:
     """
     Handle call-started webhook event.
     
@@ -53,7 +53,7 @@ def handle_call_started(event: dict) -> None:
     log_event("call-started", log_data)
 
 
-def handle_call_ended(event: dict) -> None:
+def handle_call_ended(event: Dict) -> None:
     """
     Handle call-ended webhook event.
     
@@ -72,7 +72,7 @@ def handle_call_ended(event: dict) -> None:
     log_event("call-ended", log_data)
 
 
-def handle_transcript(event: dict) -> None:
+def handle_transcript(event: Dict) -> None:
     """
     Handle transcript webhook event.
     
@@ -101,7 +101,7 @@ def handle_transcript(event: dict) -> None:
     log_event("transcript", log_data)
 
 
-def handle_webhook(payload: dict) -> dict:
+def handle_webhook(payload: Dict) -> dict:
     """
     Main webhook handler - routes events to appropriate handlers.
     
@@ -126,7 +126,7 @@ def handle_webhook(payload: dict) -> dict:
     return {"status": "received"}
 
 
-def get_call_history(call_id: str = None) -> list[dict]:
+def get_call_history(call_id: str = None) -> list:
     """
     Get call history from log file.
     
