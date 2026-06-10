@@ -1,0 +1,89 @@
+{
+  "name": "Hritik AI Representative",
+  "model": {
+    "provider": "custom-llm",
+    "url": "https://hritik-po8hch3og-rotechnicalxperts-2305s-projects.vercel.app/voice/chat",
+    "model": "hritik-ai-voice"
+  },
+  "voice": {
+    "provider": "11labs",
+    "voiceId": "adam"
+  },
+  "firstMessage": "Hi! I'm Hritik Kumar's AI representative. I can tell you about his background, projects, and experience — and I can also check his calendar and book an interview. How can I help you today?",
+  "endCallMessage": "Thank you for your time! I'll make sure Hritik knows you called. Have a great day!",
+  "recordingEnabled": true,
+  "transcriber": {
+    "provider": "deepgram",
+    "model": "nova-2",
+    "language": "en"
+  },
+  "silenceTimeoutSeconds": 30,
+  "maxDurationSeconds": 600,
+  "backgroundSound": "off",
+  "backchannelingEnabled": true,
+  "backgroundDenoisingEnabled": true,
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "check_availability",
+        "description": "Check Hritik's calendar availability for interviews",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "url": "https://hritik-po8hch3og-rotechnicalxperts-2305s-projects.vercel.app/calendar/availability",
+        "method": "GET"
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "book_slot",
+        "description": "Book an interview slot on Hritik's calendar",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Recruiter's name"
+            },
+            "email": {
+              "type": "string",
+              "description": "Recruiter's email address"
+            },
+            "slot": {
+              "type": "string",
+              "description": "Selected time slot (e.g., 'Monday 10 AM - 11 AM IST')"
+            },
+            "purpose": {
+              "type": "string",
+              "description": "Purpose of meeting (e.g., 'Technical Interview')"
+            }
+          },
+          "required": ["name", "email", "slot"],
+          "dependentRequired": {
+            "purpose": []
+          }
+        },
+        "url": "https://hritik-po8hch3og-rotechnicalxperts-2305s-projects.vercel.app/calendar/book",
+        "method": "POST"
+      }
+    }
+  ],
+  "startSpeakingPlan": {
+    "waitSeconds": 1,
+    "smartEndpointingEnabled": true
+  },
+  "endSpeakingPlan": {
+    "numSilences": 2,
+    "silenceDurationMilliseconds": 500
+  },
+  "messagePlan": {
+    "idleDurationSeconds": 20
+  },
+  "maxResponseDurationSeconds": 60,
+  "webookUrl": "https://hritik-po8hch3og-rotechnicalxperts-2305s-projects.vercel.app/voice/webhook",
+  "webookAuthHeader": "Bearer 0b3dd906-6298-4c43-8b00-cdda0c9bc2a7"
+}
