@@ -1,88 +1,101 @@
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 CAL_API_KEY = os.getenv("CAL_API_KEY")
 CAL_USERNAME = os.getenv("CAL_USERNAME")
 CAL_EVENT_TYPE_ID = os.getenv("CAL_EVENT_TYPE_ID")
 
 HEADERS = {
-    "Authorization": f"Bearer {CAL_API_KEY}",
-    "Content-Type": "application/json"
+"Authorization": f"Bearer {CAL_API_KEY}",
+"Content-Type": "application/json",
+"cal-api-version": "2024-09-04"
 }
 
-
 def get_availability():
-    try:
-        start = datetime.utcnow().isoformat() + "Z"
+try:
+start_time = datetime.now(timezone.utc)
+end_time = start_time + timedelta(days=7)
 
-        url = (
-            f"https://api.cal.com/v2/slots"
-            f"?eventTypeId={CAL_EVENT_TYPE_ID}"
-            f"&start={start}"
-        )
+```
+    response = requests.get(
+        "https://api.cal.com/v2/slots/available",
+        headers=HEADERS,
+        params={
+            "eventTypeId": CAL_EVENT_TYPE_ID,
+            "startTime": start_time.isoformat(),
+            "endTime": end_time.isoformat()
+        }
+    )
 
-        response = requests.get(url, headers=HEADERS)
+    print("CAL STATUS:", response.status_code)
+    print("CAL RESPONSE:", response.text)
 
-        print("CAL STATUS:", response.status_code)
-        print("CAL RESPONSE:", response.text)
+    data = response.json()
+    slots = []
 
-        data = response.json()
+    if data.get("status") == "success":
+        slot_data = data.get("data", {})
 
-        slots = []
+        for date_key, date_slots in slot_data.items():
+            for slot in date_slots:
+                if isinstance(slot, dict):
+                    slots.append(slot.get("start"))
+                else:
+                    slots.append(slot)
 
-        if "data" in data:
-            print("DATA TYPE:", type(data["data"]))
+    return slots[:3]
 
-        return slots
-
-    except Exception as e:
-        print("Availability Error:", e)
-        return []
-
+except Exception as e:
+    print("Availability Error:", str(e))
+    return []
+```
 
 def book_slot(name, email, slot, purpose="Interview"):
-    try:
+try:
+payload = {
+"eventTypeId": int(CAL_EVENT_TYPE_ID),
+"start": slot,
+"responses": {
+"name": name,
+"email": email
+},
+"metadata": {
+"purpose": purpose
+},
+"timeZone": "Asia/Kolkata",
+"language": "en"
+}
 
-        payload = {
-            "eventTypeId": int(CAL_EVENT_TYPE_ID),
-            "start": slot,
-            "responses": {
-                "name": name,
-                "email": email
-            },
-            "metadata": {
-                "purpose": purpose
-            },
-            "timeZone": "Asia/Kolkata",
-            "language": "en"
-        }
+```
+    response = requests.post(
+        "https://api.cal.com/v2/bookings",
+        headers=HEADERS,
+        json=payload
+    )
 
-        response = requests.post(
-            "https://api.cal.com/v2/bookings",
-            headers=HEADERS,
-            json=payload
-        )
+    print("BOOK STATUS:", response.status_code)
+    print("BOOK RESPONSE:", response.text)
 
-        data = response.json()
+    data = response.json()
 
-        if response.status_code in [200, 201]:
-
-            booking = data.get("data", {})
-
-            return {
-                "success": True,
-                "booking_id": str(booking.get("id")),
-                "message": "Interview booked successfully."
-            }
+    if response.status_code in [200, 201]:
+        booking = data.get("data", {})
 
         return {
-            "success": False,
-            "error": str(data)
+            "success": True,
+            "booking_id": str(booking.get("id")),
+            "message": "Interview booked successfully."
         }
 
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
+    return {
+        "success": False,
+        "error": str(data)
+    }
+
+except Exception as e:
+    return {
+        "success": False,
+        "error": str(e)
+    }
+```
