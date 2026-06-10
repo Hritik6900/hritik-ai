@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
     pip install --no-cache-dir -r requirements.txt
 
 # Copy application source code
-COPY main.py chat.py retriever.py prompts.py ingest.py transcribe.py ./
+COPY main.py chat.py retriever.py prompts.py ingest.py transcribe.py calendar_manager.py voice_handler.py ./
 
 # Copy pre-built knowledge base and ChromaDB data
 COPY knowledge/ ./knowledge/
