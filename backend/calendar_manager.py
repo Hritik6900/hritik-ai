@@ -1,6 +1,5 @@
 import os
 import requests
-from datetime import datetime, timedelta, timezone
 
 CAL_API_KEY = os.getenv("CAL_API_KEY")
 CAL_USERNAME = os.getenv("CAL_USERNAME")
@@ -15,9 +14,19 @@ HEADERS = {
 
 def get_availability():
     try:
+        url = "https://api.cal.com/v2/schedules"
+
+        print("=" * 50)
+        print("CAL_API_KEY EXISTS:", bool(CAL_API_KEY))
+        print("EVENT_TYPE_ID:", CAL_EVENT_TYPE_ID)
+        print("URL:", url)
+        print("HEADERS:", HEADERS)
+        print("=" * 50)
+
         response = requests.get(
-            "https://api.cal.com/v2/schedules",
-            headers=HEADERS
+            url,
+            headers=HEADERS,
+            timeout=30
         )
 
         print("CAL STATUS:", response.status_code)
@@ -32,11 +41,24 @@ def get_availability():
 
         schedules = data.get("data", [])
 
+        print("TOTAL SCHEDULES:", len(schedules))
+
         for schedule in schedules:
+
             availability = schedule.get("availability", [])
 
+            print("AVAILABILITY RAW:", availability)
+
             for day in availability:
+
+                if not isinstance(day, list):
+                    continue
+
                 for slot in day:
+
+                    if not isinstance(slot, dict):
+                        continue
+
                     start = slot.get("start")
 
                     if start:
@@ -67,10 +89,13 @@ def book_slot(name, email, slot, purpose="Interview"):
             "language": "en"
         }
 
+        print("BOOK PAYLOAD:", payload)
+
         response = requests.post(
             "https://api.cal.com/v2/bookings",
             headers=HEADERS,
-            json=payload
+            json=payload,
+            timeout=30
         )
 
         print("BOOK STATUS:", response.status_code)
@@ -80,6 +105,7 @@ def book_slot(name, email, slot, purpose="Interview"):
 
         if response.status_code in [200, 201]:
             booking = data.get("data", {})
+
             return {
                 "success": True,
                 "booking_id": str(booking.get("id")),
