@@ -15,17 +15,9 @@ HEADERS = {
 
 def get_availability():
     try:
-        start_time = datetime.now(timezone.utc)
-        end_time = start_time + timedelta(days=7)
-
         response = requests.get(
-            "https://api.cal.com/v2/slots/available",
-            headers=HEADERS,
-            params={
-                "eventTypeId": int(CAL_EVENT_TYPE_ID),
-                "startTime": start_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "endTime": end_time.strftime("%Y-%m-%dT%H:%M:%SZ")
-            }
+            "https://api.cal.com/v2/schedules",
+            headers=HEADERS
         )
 
         print("CAL STATUS:", response.status_code)
@@ -35,24 +27,24 @@ def get_availability():
             return []
 
         data = response.json()
+
         slots = []
 
-        if data.get("status") == "success":
-            slot_data = data.get("data", {})
+        schedules = data.get("data", [])
 
-            if isinstance(slot_data, dict):
-                for _, date_slots in slot_data.items():
-                    if isinstance(date_slots, list):
-                        for slot in date_slots:
-                            if isinstance(slot, dict):
-                                start = slot.get("start")
-                                if start:
-                                    slots.append(start)
-                            elif isinstance(slot, str):
-                                slots.append(slot)
+        for schedule in schedules:
+            availability = schedule.get("availability", [])
+
+            for day in availability:
+                for slot in day:
+                    start = slot.get("start")
+
+                    if start:
+                        slots.append(start)
 
         print("PARSED SLOTS:", slots)
-        return slots[:3]
+
+        return slots[:5]
 
     except Exception as e:
         print("Availability Error:", str(e))
