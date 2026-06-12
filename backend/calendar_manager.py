@@ -7,10 +7,8 @@ CAL_EVENT_TYPE_ID = os.getenv("CAL_EVENT_TYPE_ID")
 
 HEADERS = {
     "Authorization": f"Bearer {CAL_API_KEY}",
-    "Content-Type": "application/json",
-    "cal-api-version": "2024-09-04"
+    "Content-Type": "application/json"
 }
-
 
 def get_availability():
     try:
